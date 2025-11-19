@@ -13,8 +13,15 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:4200")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+                        .allowedOrigins(
+                                "http://localhost:4200",
+                                "https://tempero-do-sertao.vercel.app",
+                                "https://tempero-do-sertao-git-main-marcos-projects-c01daa0e.vercel.app",
+                                "https://tempero-do-sertao-hjx2kxy40-marcos-projects-c01daa0e.vercel.app"
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
