@@ -23,7 +23,7 @@ public class Produto {
     @Column(nullable = false, length = 100)
     private String categoria;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 200, unique = true)
     private String detalhe;
 
     @Column(nullable = false, length = 100)

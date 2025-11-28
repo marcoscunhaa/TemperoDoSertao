@@ -2,6 +2,7 @@ package br.com.marcoscunha.TemperoDoSertao.controller;
 
 import br.com.marcoscunha.TemperoDoSertao.model.Produto;
 import br.com.marcoscunha.TemperoDoSertao.service.ProdutoService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/produtos")
 public class ProdutoController {
+
     private final ProdutoService produtoService;
 
     public ProdutoController(ProdutoService produtoService) {
@@ -51,24 +53,39 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public ResponseEntity<Produto> salvar(@RequestBody Produto produto) {
-        Produto novoProduto = produtoService.salvar(produto);
-        return ResponseEntity.ok(novoProduto);
+    public ResponseEntity<?> salvar(@RequestBody Produto produto) {
+        try {
+            Produto novoProduto = produtoService.salvar(produto);
+            return ResponseEntity.ok(novoProduto);
+
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity
+                    .status(409)
+                    .body("Já existe um produto com essa descrição!");
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Produto> atualizar(@PathVariable Long id, @RequestBody Produto produtoAtualizado) {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Produto produtoAtualizado) {
         return produtoService.buscarPorId(id)
                 .map(produto -> {
-                    produto.setCategoria(produtoAtualizado.getCategoria());
-                    produto.setDetalhe(produtoAtualizado.getDetalhe());
-                    produto.setPrecoCompra(produtoAtualizado.getPrecoCompra());
-                    produto.setMarca(produtoAtualizado.getMarca());
-                    produto.setPrecoVenda(produtoAtualizado.getPrecoVenda());
-                    produto.setQuantidadeEstoque(produtoAtualizado.getQuantidadeEstoque());
-                    produto.setVencimento(produtoAtualizado.getVencimento());
-                    Produto atualizado = produtoService.salvar(produto);
-                    return ResponseEntity.ok(atualizado);
+                    try {
+                        produto.setCategoria(produtoAtualizado.getCategoria());
+                        produto.setDetalhe(produtoAtualizado.getDetalhe());
+                        produto.setPrecoCompra(produtoAtualizado.getPrecoCompra());
+                        produto.setMarca(produtoAtualizado.getMarca());
+                        produto.setPrecoVenda(produtoAtualizado.getPrecoVenda());
+                        produto.setQuantidadeEstoque(produtoAtualizado.getQuantidadeEstoque());
+                        produto.setVencimento(produtoAtualizado.getVencimento());
+
+                        Produto atualizado = produtoService.salvar(produto);
+                        return ResponseEntity.ok(atualizado);
+
+                    } catch (DataIntegrityViolationException e) {
+                        return ResponseEntity
+                                .status(409)
+                                .body("Já existe um produto com essa descrição!");
+                    }
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
